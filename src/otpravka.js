@@ -229,7 +229,7 @@ const createBatch = async (ids = [], { sendingDate, timezoneOffset, useOnlineBal
  *
  * @see https://otpravka.pochta.ru/specification#/batches-sending_date
  */
-const changeBatchSendingDate = async ({ batchName, year, month, dayOfMonth }) => {
+const changeBatchSendingDate = async ({ batchName, year, month, dayOfMonth } = {}) => {
 	try {
 		const response = await fetch(
 			`https://otpravka-api.pochta.ru/1.0/batch/${batchName}/sending/${year}/${month}/${dayOfMonth}`,
@@ -559,7 +559,7 @@ const getDocs = async (batchName, outputPath, { printType, printTypeForm } = {})
 };
 
 /**
- * Gets a F7P form (PDF) for specified order
+ * Gets a f7p form (PDF) for specified order
  *
  * @see https://otpravka.pochta.ru/specification#/documents-create_f7_f22
  */
@@ -605,7 +605,7 @@ const getF7P = async (id, outputPath, { sendingDate, printType } = {}) => {
 };
 
 /**
- * Gets a F112 form (PDF) for specified order
+ * Gets a f112 form (PDF) for specified order
  *
  * @see https://otpravka.pochta.ru/specification#/documents-create_f112
  */
@@ -742,7 +742,172 @@ const getForms = async (id, outputPath, { sendingDate, printType } = {}) => {
 		};
 	}
 };
-//#endregion
+
+/**
+ * Gets a f103 form (PDF) for a specified batch
+ *
+ * @see https://otpravka.pochta.ru/specification#/documents-create_f103
+ */
+const getF103 = async (batchName, outputPath) => {
+	try {
+		const response = await fetch(`https://otpravka-api.pochta.ru/1.0/forms/${batchName}/f103pdf`, {
+			method: "GET",
+			headers: {
+				Authorization: `AccessToken ${otpravka.token}`,
+				"X-User-Authorization": `Basic ${otpravka.key}`,
+				"Content-Type": "application/json;charset=UTF-8",
+			},
+		});
+
+		const fileStream = fs.createWriteStream(outputPath);
+		await new Promise((resolve, reject) => {
+			response.body.pipe(fileStream);
+
+			response.body.on("error", reject);
+			fileStream.on("finish", resolve);
+		});
+
+		if (response.status === 400)
+			return {
+				error: "400 bad request",
+				data: null,
+			};
+
+		return {
+			error: null,
+			data: "downloaded",
+		};
+	} catch (error) {
+		return {
+			error: error,
+			data: null,
+		};
+	}
+};
+
+/**
+ * Sends batch's info to post office
+ *
+ * @see https://otpravka.pochta.ru/specification#/documents-checkin
+ */
+const checkin = async (batchName, { useOnlineBalance } = {}) => {
+	let url = `https://otpravka-api.pochta.ru/1.0/batch/${batchName}/checkin`;
+	url += useOnlineBalance ? "?useOnlineBalance=true" : "";
+
+	try {
+		const response = await fetch(url, {
+			method: "POST",
+			headers: {
+				Authorization: `AccessToken ${otpravka.token}`,
+				"X-User-Authorization": `Basic ${otpravka.key}`,
+				"Content-Type": "application/json;charset=UTF-8",
+			},
+		});
+
+		const result = await response.json();
+
+		return {
+			error: null,
+			data: result,
+		};
+	} catch (error) {
+		return {
+			error: error,
+			data: null,
+		};
+	}
+};
+
+/**
+ * Gets a completeness check form (PDF) for a specified batch
+ *
+ * @see https://otpravka.pochta.ru/specification#/documents-create_comp_check_form
+ */
+const getCompCheckForm = async (batchName, outputPath) => {
+	try {
+		const response = await fetch(
+			`https://otpravka-api.pochta.ru/1.0/forms/${batchName}/completeness-checking-form`,
+			{
+				method: "GET",
+				headers: {
+					Authorization: `AccessToken ${otpravka.token}`,
+					"X-User-Authorization": `Basic ${otpravka.key}`,
+					"Content-Type": "application/json;charset=UTF-8",
+				},
+			}
+		);
+
+		const fileStream = fs.createWriteStream(outputPath);
+		await new Promise((resolve, reject) => {
+			response.body.pipe(fileStream);
+
+			response.body.on("error", reject);
+			fileStream.on("finish", resolve);
+		});
+
+		if (response.status === 400)
+			return {
+				error: "400 bad request",
+				data: null,
+			};
+
+		return {
+			error: null,
+			data: "downloaded",
+		};
+	} catch (error) {
+		return {
+			error: error,
+			data: null,
+		};
+	}
+};
+
+/**
+ * Gets a return form (PDF) for a specified order
+ *
+ * @see https://otpravka.pochta.ru/specification#/documents-easy_return_pdf
+ */
+const getReturnForm = async (id, outputPath, { printType } = {}) => {
+	let url = `https://otpravka-api.pochta.ru/1.0/forms/${id}/easy-return-pdf?`;
+	url += printType ? `print-type=${printType}` : "";
+
+	try {
+		const response = await fetch(url, {
+			method: "GET",
+			headers: {
+				Authorization: `AccessToken ${otpravka.token}`,
+				"X-User-Authorization": `Basic ${otpravka.key}`,
+				"Content-Type": "application/json;charset=UTF-8",
+			},
+		});
+
+		const fileStream = fs.createWriteStream(outputPath);
+		await new Promise((resolve, reject) => {
+			response.body.pipe(fileStream);
+
+			response.body.on("error", reject);
+			fileStream.on("finish", resolve);
+		});
+
+		if (response.status === 400)
+			return {
+				error: "400 bad request",
+				data: null,
+			};
+
+		return {
+			error: null,
+			data: "downloaded",
+		};
+	} catch (error) {
+		return {
+			error: error,
+			data: null,
+		};
+	}
+};
+//#endregion docs
 
 var otpravka = {
 	token: null,
@@ -772,6 +937,10 @@ var otpravka = {
 	getF112: getF112,
 	getDocsByOrderId: getDocsByOrderId,
 	getForms: getForms,
+	getF103: getF103,
+	checkin: checkin,
+	getCompCheckForm: getCompCheckForm,
+	getReturnForm: getReturnForm,
 };
 
 module.exports = otpravka;
