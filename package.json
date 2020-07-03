@@ -1,7 +1,12 @@
 {
 	"name": "ru-post-api",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Wrapper for Russian Post API",
+	"homepage": "https://github.com/hino-2/russian-post-api",
+	"bugs": {
+		"url": "https://github.com/hino-2/russian-post-api",
+		"email": "sinigami0@gmail.com"
+	},
 	"main": "./src/index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +15,14 @@
 		"Russian Post",
 		"Node"
 	],
-	"author": "Igor Ushakov",
+	"author": {
+		"email": "sinigami0@gmail.com",
+		"name": "Igor Ushakov"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/hino-2/russian-post-api"
+	},
 	"license": "ISC",
 	"dependencies": {
 		"node-fetch": "^2.6.0",
