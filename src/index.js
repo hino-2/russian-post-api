@@ -1,4 +1,6 @@
-export * from "./orders.js";
-export * from "./tariff.js";
-export * from "./delivery.js";
-export * from "./tracking.js";
+const otpravka = require('./otpravka.js')
+const tariff = require('./tariff.js')
+const delivery = require('./delivery.js')
+const tracking = require('./tracking.js')
+
+module.exports = { otpravka, tariff, delivery, tracking }

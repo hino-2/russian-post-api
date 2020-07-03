@@ -909,7 +909,7 @@ const getReturnForm = async (id, outputPath, { printType } = {}) => {
 };
 //#endregion docs
 
-var otpravka = {
+const otpravka = {
 	token: null,
 	key: null,
 	auth: function (token, key) {
