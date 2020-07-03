@@ -909,6 +909,100 @@ const getReturnForm = async (id, outputPath, { printType } = {}) => {
 };
 //#endregion docs
 
+//#region archive
+/**
+ * Gets information about batches which are in archive
+ *
+ * @see https://otpravka.pochta.ru/specification#/archive-search_batches
+ */
+const getBatchesFromArchive = async () => {
+	try {
+		const response = await fetch("https://otpravka-api.pochta.ru/1.0/archive", {
+			method: "GET",
+			headers: {
+				Authorization: `AccessToken ${otpravka.token}`,
+				"X-User-Authorization": `Basic ${otpravka.key}`,
+				"Content-Type": "application/json;charset=UTF-8",
+			},
+		});
+
+		const result = await response.json();
+
+		return {
+			error: null,
+			data: result,
+		};
+	} catch (error) {
+		return {
+			error: error,
+			data: null,
+		};
+	}
+};
+
+/**
+ * Move batch to archive
+ *
+ * @see https://otpravka.pochta.ru/specification#/archive-batch_to_archive
+ */
+const moveBatchToArchive = async (batches = []) => {
+	try {
+		const response = await fetch("https://otpravka-api.pochta.ru/1.0/archive", {
+			method: "PUT",
+			headers: {
+				Authorization: `AccessToken ${otpravka.token}`,
+				"X-User-Authorization": `Basic ${otpravka.key}`,
+				"Content-Type": "application/json;charset=UTF-8",
+			},
+			body: JSON.stringify(batches),
+		});
+
+		const result = await response.json();
+
+		return {
+			error: null,
+			data: result,
+		};
+	} catch (error) {
+		return {
+			error: error,
+			data: null,
+		};
+	}
+};
+
+/**
+ * Move batch from archive
+ *
+ * @see https://otpravka.pochta.ru/specification#/archive-revert_batch
+ */
+const moveBatchFromArchive = async (batches = []) => {
+	try {
+		const response = await fetch("https://otpravka-api.pochta.ru/1.0/archive/revert", {
+			method: "POST",
+			headers: {
+				Authorization: `AccessToken ${otpravka.token}`,
+				"X-User-Authorization": `Basic ${otpravka.key}`,
+				"Content-Type": "application/json;charset=UTF-8",
+			},
+			body: JSON.stringify(batches),
+		});
+
+		const result = await response.json();
+
+		return {
+			error: null,
+			data: result,
+		};
+	} catch (error) {
+		return {
+			error: error,
+			data: null,
+		};
+	}
+};
+//#endregion archive
+
 const otpravka = {
 	token: null,
 	key: null,
@@ -941,6 +1035,9 @@ const otpravka = {
 	checkin: checkin,
 	getCompCheckForm: getCompCheckForm,
 	getReturnForm: getReturnForm,
+	getBatchesFromArchive: getBatchesFromArchive,
+	moveBatchToArchive: moveBatchToArchive,
+	moveBatchFromArchive: moveBatchFromArchive,
 };
 
 module.exports = otpravka;
